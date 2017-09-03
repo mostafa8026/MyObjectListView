@@ -1208,9 +1208,11 @@ namespace BrightIdeasSoftware
         /// </summary>
         /// <param name="e"></param>
         /// <returns>Was the key press handled?</returns>
-        protected override void OnKeyDown(KeyEventArgs e) {
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
             OLVListItem focused = this.FocusedItem as OLVListItem;
-            if (focused == null) {
+            if (focused == null)
+            {
                 base.OnKeyDown(e);
                 return;
             }
@@ -1218,32 +1220,35 @@ namespace BrightIdeasSoftware
             Object modelObject = focused.RowObject;
             Branch br = this.TreeModel.GetBranch(modelObject);
 
-            switch (e.KeyCode) {
-                case Keys.Left:
-                    // If the branch is expanded, collapse it. If it's collapsed,
-                    // select the parent of the branch.
-                    if (br.IsExpanded)
-                        this.Collapse(modelObject);
-                    else {
-                        if (br.ParentBranch != null && br.ParentBranch.Model != null)
-                            this.SelectObject(br.ParentBranch.Model, true);
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Keys.Right:
-                    // If the branch is expanded, select the first child.
-                    // If it isn't expanded and can be, expand it.
-                    if (br.IsExpanded) {
-                        List<Branch> filtered = br.FilteredChildBranches;
-                        if (filtered.Count > 0)
-                            this.SelectObject(filtered[0].Model, true);
-                    } else {
-                        if (br.CanExpand)
-                            this.Expand(modelObject);
-                    }
-                    e.Handled = true;
-                    break;
+            if ((e.KeyCode == Keys.Left && RightToLeftLayout == false) || (e.KeyCode == Keys.Right && RightToLeftLayout == true))
+            {
+                // If the branch is expanded, collapse it. If it's collapsed,
+                // select the parent of the branch.
+                if (br.IsExpanded)
+                    this.Collapse(modelObject);
+                else
+                {
+                    if (br.ParentBranch != null && br.ParentBranch.Model != null)
+                        this.SelectObject(br.ParentBranch.Model, true);
+                }
+                e.Handled = true;
+            }
+            else if ((e.KeyCode == Keys.Left && RightToLeftLayout == true) || (e.KeyCode == Keys.Right && RightToLeftLayout == false))
+            {
+                // If the branch is expanded, select the first child.
+                // If it isn't expanded and can be, expand it.
+                if (br.IsExpanded)
+                {
+                    List<Branch> filtered = br.FilteredChildBranches;
+                    if (filtered.Count > 0)
+                        this.SelectObject(filtered[0].Model, true);
+                }
+                else
+                {
+                    if (br.CanExpand)
+                        this.Expand(modelObject);
+                }
+                e.Handled = true;
             }
 
             base.OnKeyDown(e);
